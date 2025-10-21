@@ -1,0 +1,401 @@
+﻿A Technical Blueprint for a Polymarket Whale Alert System: Architecture, Implementation, and Operational Strategy
+Section I: Strategic Framework for Identifying Influential Traders on Polymarket
+This section establishes the strategic foundation for the whale alert system. It begins by critically examining the initial premise of tracking anonymous insiders on Polymarket, confronts the significant regulatory shifts altering the platform's landscape, and pivots the strategy toward a more robust and sustainable model focused on identifying sophisticated, influential traders, or "whales."
+1.1 Deconstructing the "Anonymous Insider" Thesis
+The foundational premise for generating profitable trading signals from Polymarket is rooted in the platform's unique position as a prediction market that, for much of its history, has operated in a legal gray area, encouraging the aggregation of information to enhance predictive accuracy. The platform's business model is not primarily driven by trading fees but by the potential to monetize its highly accurate, real-time predictive data feeds, which could compete with established services like the Bloomberg Terminal. To achieve this level of accuracy, the platform has a tacit incentive to attract traders with superior, non-public information—effectively, insiders.
+This environment has historically fostered a unique form of legal "insider trading." Unlike traditional financial markets where trading on material non-public information is strictly illegal and carries severe penalties, prediction markets have operated under a different, less defined regulatory framework. The anonymity provided by blockchain wallets, specifically on the Polygon network, has been a key enabler of this dynamic. A user can create a new wallet without any Know Your Customer (KYC) process, place bets based on privileged information, and remain pseudonymous, making it nearly impossible to trace their real-world identity.
+Several well-documented examples illustrate this phenomenon. One notable case involved a Super Bowl streaker who bet $50,000 on the occurrence of a streaker at the event, an outcome he himself would later ensure. This self-fulfilling bet yielded a return of over $300,000. While an extreme example of market manipulation, it highlights the potential for individuals with direct control over an event's outcome to profit. More common examples involve individuals with privileged, but not self-created, information. Betting markets on events like a potential Taylor Swift engagement or the conclusion of an HBO documentary have shown strange, high-conviction betting activity preceding public announcements, strongly suggesting that individuals with insider knowledge—friends, family, or project staff—were participating in the market.
+The core of this "anonymous insider" thesis is that by monitoring for specific trading patterns—such as new, anonymous accounts making sudden, large, and confident bets that significantly move the market odds—one can identify the footprint of an informed trader and piggyback on their position. It is estimated that such patterns are winning trades over 50% of the time, a significant deviation from the 50/50 odds expected from a random or uninformed gambler.
+1.2 The Great Contradiction: The U.S. Relaunch and the End of Anonymity
+While the "anonymous insider" thesis has been historically valid, a fundamental and irreversible shift in Polymarket's operational and regulatory posture presents a critical roadblock to any strategy based solely on this premise. After a multi-year hiatus from the United States following a 2022 settlement with the Commodity Futures Trading Commission (CFTC) for operating an unregistered platform, Polymarket is set for a full, legal relaunch in the U.S. market in late 2025.
+This re-entry is not a return to the previous unregulated model. It is predicated on a strategic acquisition and subsequent regulatory maneuvering. In July 2025, Polymarket acquired QCEX LLC, a CFTC-licensed derivatives exchange and clearinghouse, for $112 million, renaming it Polymarket US. This acquisition provides Polymarket with a Designated Contract Market (DCM) license, a crucial piece of regulatory infrastructure that allows it to legally operate and self-certify event contracts for U.S. users.
+Following the acquisition, in September 2025, the CFTC's Division of Market Oversight issued a targeted no-action letter. This letter grants Polymarket's entities relief from certain swap data reporting and recordkeeping requirements, effectively giving the platform a "green light to go live in the USA" under a compliant framework.
+The most significant consequence of this shift to a regulated model is the end of user anonymity within the U.S. market. To comply with U.S. regulations, the new "Polymarket US" platform will require users to undergo "a quick identity check and standard U.S. compliance measures". This directly invalidates the core assumption of the anonymous insider thesis for what is arguably the platform's largest and most active user base. The historical lack of KYC, which was a defining feature and a key enabler of pseudonymous insider activity, will no longer apply to participants on the U.S. platform. Therefore, a strategy designed to track "anonymous" insiders will fail to capture the activity of the most significant traders in the U.S. market post-relaunch.
+1.3 Strategic Pivot: From "Anonymous Insiders" to "Sophisticated Whales"
+Given the new, bifurcated reality of Polymarket's operations—a regulated, non-anonymous U.S. platform and a less-regulated global platform—the strategic focus of the alert system must pivot. The target profile must evolve from the "anonymous insider" to the more broadly defined "sophisticated whale." A sophisticated whale is a market participant whose trading activity, irrespective of their identity being known to the platform, indicates a superior analytical edge, access to unique informational resources, or a consistently profitable trading model. The goal is no longer to find a hidden insider but to identify "sharp money" in any form.
+This requires a new, more nuanced set of heuristics for whale detection that go beyond simply flagging large trades from new wallets. The algorithm must be capable of identifying patterns indicative of sophisticated activity:
+* High-Conviction Betting: This remains a core heuristic. It involves identifying large, decisive trades that absorb significant liquidity and cause a substantial, rapid shift in a market's implied probability. This is particularly potent in less liquid, niche markets where a single large order can have an outsized impact on the price.
+* Temporal Advantage: A key signature of an informed trader is precise timing. The system must monitor for significant trading activity concentrated in the final hours or minutes before a key announcement, data release, or event resolution. The 2025 Nobel Peace Prize market serves as a powerful case study, where a single trader's activity caused the implied odds for the eventual winner to jump from 3.6% to 70% just nine hours before the official announcement, signaling a clear informational advantage.
+* Wallet Behavior and Obfuscation: Even in a non-anonymous environment, sophisticated traders may use fresh wallets for specific strategies. Monitoring for newly created or newly funded wallets that engage in large, single-market transactions remains a valid heuristic. While the identity might be known to Polymarket US, the wallet's public history is clean, indicating a deliberate attempt to isolate a specific trade or strategy.
+* Long-Term Profitability Tracking: This is the most critical addition to the strategy. The system cannot be myopic; it must maintain a persistent record of wallets that trigger alerts. By tracking the profit and loss (PnL) of these wallets over time across multiple markets, the system can begin to differentiate between consistently profitable "sharp" money and "dumb" money—large, uninformed gamblers who may trigger alerts but ultimately lose money. An alert from a wallet with a proven track record of profitability is a signal of much higher quality and trustworthiness.
+1.4 The Shrinking Gray Area: Global Regulatory Scrutiny
+To ensure the long-term viability of this project, it is essential to recognize that the regulatory arbitrage opportunity described in the initial thesis is not only disappearing in the U.S. but is also being aggressively curtailed globally. A growing number of countries have taken action to block or restrict access to Polymarket, viewing it as an unlicensed online gambling platform.
+As of early 2025, access to Polymarket has been officially blocked or is under investigation in numerous jurisdictions, including Singapore, France, Poland, Belgium, Switzerland, and Thailand. Singapore, for instance, has shuttered thousands of websites in a national crackdown on unlicensed gambling and warns users attempting to access Polymarket of potential fines and imprisonment. France's National Gaming Authority has also geo-blocked the site following an investigation.
+This global trend underscores a critical point: any strategy that relies on exploiting regulatory loopholes is inherently fragile and geographically limited. The MVP must be designed with the forward-looking assumption that the regulatory environment will only become more stringent over time. The "Wild West" era of prediction markets is rapidly coming to an end, and a successful strategy must be adaptable to this new, more structured reality.
+This evolving landscape gives rise to a more complex but ultimately more insightful view of the market's participants. The U.S. relaunch does not eliminate "whales"; it transforms them. This creates two distinct archetypes of influential traders that the system must be able to identify and differentiate. The first is the Regulated U.S. Whale. This participant will be subject to KYC and other compliance measures on the Polymarket US platform. They are likely to be institutional players, hedge funds, professional quantitative traders, or high-net-worth individuals operating within a legal framework. Their "alpha," or trading edge, is less likely to come from illegal insider information and more likely to stem from superior data analysis, sophisticated modeling, proprietary datasets (like private polling), or faster access to public information. Their trades represent a signal of high-level analytical confidence.
+The second archetype is the Anonymous International Whale. This participant operates from a jurisdiction where Polymarket is not restricted and where KYC is not enforced. This trader more closely fits the original "anonymous insider" profile. Their edge may indeed come from genuine non-public information related to a specific event, and their trades signal the presence of privileged knowledge.
+The system's ability to generate trustworthy alerts hinges on its capacity to distinguish between these two personas. An alert triggered by a Regulated U.S. Whale on a market about Federal Reserve interest rate policy suggests a strong quantitative or macroeconomic thesis. An alert from an Anonymous International Whale on a niche European political event might suggest a leak or direct insider knowledge. The nature of the signal, its reliability, and the potential risk in following it are fundamentally different. The MVP's logging and alerting output must therefore provide this context, flagging not only the trade but also the likely persona of the trader based on the platform (U.S. vs. Global) and the market's jurisdiction.
+Furthermore, the very premise of this project—finding an edge by tracking smart money—is an alpha that is actively decaying. The market for analyzing Polymarket data is maturing rapidly. The emergence of third-party platforms like TrendSpider, which now integrates live Polymarket odds directly into financial charts, demonstrates that this data is being consumed by a wider audience of traders. Sophisticated, open-source AI research tools like Polyseer are being developed to automate deep analysis of prediction markets. AI-driven betting agents like Billy Bets, backed by venture capital, are being built specifically to exploit inefficiencies in these markets using advanced models.
+This increasing sophistication among market participants means that simple inefficiencies are being arbitraged away more quickly. The "free money" opportunities that may have existed in the platform's early, unregulated days are becoming scarcer. A successful whale alert system can no longer rely on a simplistic trigger, such as "alert on any trade over $50,000." To maintain an edge, the system must employ the more nuanced, multi-faceted heuristics outlined previously—analyzing temporal advantage, preparatory on-chain activity, and long-term wallet profitability. The window for easy alpha is closing, and only a more sophisticated approach will continue to generate value.
+Section II: Polymarket API Ecosystem: A Technical Deep Dive
+A robust data ingestion pipeline is the bedrock of the whale alert system. This section provides a granular, implementation-focused analysis of Polymarket's data infrastructure, evaluates the available Application Programming Interfaces (APIs), and selects the optimal data sources for the Minimum Viable Product (MVP). The goal is to design a resilient and efficient data-gathering mechanism that can reliably feed the whale detection algorithm.
+2.1 Comparative Analysis of Polymarket APIs
+Polymarket offers a suite of APIs, each designed for different use cases. Selecting the correct API is the first critical technical decision, balancing data richness, ease of use, and real-time capabilities.
+* CLOB API: The Central Limit Order Book (CLOB) API is Polymarket's primary interface for trading. It provides endpoints for placing and canceling orders, checking balances, and retrieving detailed trade history. While it offers the most granular data, it requires authentication via derived API keys, which involves signing messages with a wallet's private key. This adds significant complexity for a read-only data ingestion task and is overkill for the MVP's requirements.
+* Gamma API: The Gamma API is a hosted, read-only REST service that indexes on-chain data and enriches it with additional metadata, such as market categorization, indexed volume, and slugs. It is designed for public use cases like research and building alternative trading interfaces. While useful for discovering markets and retrieving static metadata, it is not the primary source for real-time user activity or trade data.
+* Real-Time Data Socket (RTDS): The RTDS is a WebSocket-based service for streaming real-time data, including price changes and comments. A WebSocket connection provides the lowest latency data, making it ideal for high-frequency strategies. However, it requires managing a persistent connection, handling a stream of events, and introduces architectural complexity that is unnecessary for an MVP designed to poll data at a lower frequency (e.g., every minute). It represents a logical upgrade path for a future, more advanced version of the system.
+* Data-API: The Data-API is a public, unauthenticated REST endpoint specifically designed to deliver user data, holdings, and on-chain activities. It provides simple GET request access to crucial endpoints like /trades and /activity without the need for complex authentication. Its purpose is to allow for the straightforward retrieval of the exact data needed for whale tracking.
+For the MVP, the Data-API is the unequivocally superior choice. Its lack of authentication, simple REST-based structure, and focus on user and trade data align perfectly with the project's requirements for streamlined and thoughtful development.
+
+
+Table 1: Polymarket API Comparison for MVP Data Ingestion
+API Name
+	Authentication
+	Key Endpoints
+	Rate Limits (Relevant to MVP)
+	Data Granularity
+	MVP Suitability
+	Justification
+	Data-API
+	None (Public)
+	/trades, /activity
+	/trades: 75 req/10s; General: 200 req/10s
+	High (User trades, on-chain actions)
+	Excellent
+	Unauthenticated, simple GET requests, and provides the exact user activity data needed. Ideal for a polling-based MVP.
+	Gamma API
+	None (Public)
+	/markets, /events
+	/markets: 125 req/10s
+	Medium (Market metadata, volume)
+	Fair
+	Useful for market discovery but lacks the granular user-level trade and activity data required for whale detection.
+	CLOB API
+	Required (Key Derivation)
+	/order, /data/trades
+	Trading: 240 req/s (burst)
+	Very High (Order book, authenticated trades)
+	Poor
+	Authentication complexity is unnecessary for the MVP's read-only requirements. Data is too granular for the initial strategy.
+	RTDS
+	Required
+	WebSocket Channels
+	N/A (Connection-based)
+	Real-Time (Live price ticks)
+	Poor (for MVP)
+	WebSocket architecture is overly complex for a simple polling system. A potential future upgrade, but not suitable for the MVP.
+	
+
+2.2 Mastering the Data-API: Endpoints, Structures, and Parameters
+The effectiveness of the whale detection algorithm depends on a precise understanding of the Data-API's key endpoints. The two most critical endpoints for this project are /trades and /activity.
+The /trades Endpoint
+This endpoint allows for the retrieval of trades from all markets and users, ordered by timestamp in descending order. It is the primary tool for identifying large transactions.
+* Endpoint URL: https://data-api.polymarket.com/trades
+* Method: GET
+* Key Query Parameters:
+   * limit: (integer, default: 100) The number of trades to return, up to a maximum of 10,000.
+   * offset: (integer, default: 0) The starting index for pagination.
+   * market: (string) A comma-separated list of market conditionIds to filter by. This is essential for focusing the search on specific markets of interest.
+   * user: (string) A user's wallet address to filter trades for a specific participant.
+   * filterType: (enum: CASH or TOKENS) This parameter is crucial for whale detection. Setting it to CASH allows filtering by the USDC value of the trade.
+   * filterAmount: (number) Used in conjunction with filterType, this sets the minimum value for a trade to be included in the results. For example, filterType=CASH&filterAmount=10000 will return only trades with a value of $10,000 USDC or more.
+* Response Structure: The endpoint returns a JSON array of trade objects. Each object contains vital information, including proxyWallet (the user's address), side (BUY or SELL), price, size, timestamp, conditionId, and market metadata like title and slug.
+The /activity Endpoint
+This endpoint is more comprehensive than /trades, as it provides a view of a user's on-chain activities beyond just matched trades. This includes actions like creating and redeeming shares, which are critical for developing more advanced detection heuristics.
+* Endpoint URL: https://data-api.polymarket.com/activity
+* Method: GET
+* Key Query Parameters:
+   * user: (string, required) The wallet address of the user whose activity is being queried.
+   * limit: (integer, default: 100) The number of activity records to return, up to a maximum of 500.
+   * market: (string) A comma-separated list of market conditionIds to filter by.
+   * type: (enum array) This is the most powerful parameter of this endpoint. It allows filtering for specific types of on-chain activity. The available options are TRADE, SPLIT, MERGE, REDEEM, REWARD, or CONVERSION.
+   * start / end: (integer) Unix timestamps to define a time range for the query.
+* Response Structure: The response is a JSON array of activity objects, each with a type field indicating the nature of the action. This allows the system to distinguish between a trade and other preparatory or concluding actions.
+2.3 Designing a Resilient Polling Strategy
+To ensure the system operates reliably without being blocked, it must adhere to Polymarket's API rate limits. The documented limits for the Data-API are generous but must be respected: 75 requests per 10 seconds for the /trades endpoint and a general limit of 200 requests per 10 seconds for the API as a whole.
+A robust polling strategy will be implemented within the core Cloud Function:
+1. Polling Interval: The system will be triggered by Cloud Scheduler at a configurable interval, recommended to be once every 60 seconds for the MVP. This frequency is low enough to stay well within rate limits while providing timely enough data.
+2. Batching: Instead of making one API call per market, the system will fetch the list of tracked markets from Firestore and construct a single API call using a comma-separated list of conditionIds for the market parameter. This significantly reduces the number of requests.
+3. Error Handling and Backoff: All API calls will be wrapped in error handling logic. In case of a non-200 status code (e.g., a 429 "Too Many Requests" or a 5xx server error), the function will implement an exponential backoff with jitter. This means it will wait for a progressively longer, randomized interval before retrying the request, preventing a "thundering herd" problem and ensuring the system gracefully handles temporary API unavailability.
+4. Stateful Polling: To avoid processing the same trades repeatedly, the system will use timestamps. On each successful run for a given market, it will store the timestamp of the most recent trade processed. The next poll for that market will then use this timestamp to request only newer data, making the data processing more efficient.
+2.4 On-Chain Data and the Conditional Token Framework (CTF)
+While the MVP will rely exclusively on the Data-API, a foundational understanding of Polymarket's on-chain architecture is crucial for interpreting the data correctly and for any future system enhancements. Polymarket's markets are built on Gnosis's Conditional Token Framework (CTF), which tokenizes event outcomes on the Polygon blockchain.
+The system is organized hierarchically:
+1. Event: A high-level question, such as "How many Fed rate cuts in 2025?".
+2. Market: A specific, binary option within an event, like "Will there be exactly 1 rate cut in 2025?". Each market is uniquely identified by a conditionId.
+3. Outcome: The binary result of a market, typically "Yes" or "No." Each outcome is represented by a unique ERC-1155 token, identified by a tokenId.
+The core mechanism for creating these outcome tokens is known as splitting. A user can take 1 USDC and "split" it into a complete set of outcome shares—in a binary market, this means 1 "Yes" share and 1 "No" share. The reverse process, merging, allows a user holding 1 "Yes" share and 1 "No" share to combine them and redeem 1 USDC. This mechanism is fundamental because it is the only way new shares are created, and it underpins the platform's liquidity model.
+This on-chain structure provides a deeper context for the data retrieved from the API. The conditionId in the API response corresponds to a specific Market, and the various activity types (SPLIT, MERGE, REDEEM) correspond directly to these on-chain smart contract interactions.
+The design of a superior whale alert system must leverage this deeper understanding. A simple system might only monitor the /trades endpoint for large transactions. However, this is a lagging indicator; it only reports a trade after it has been matched and executed. A more advanced system can generate leading indicators by monitoring preparatory actions. A large "split" transaction, where a user converts a significant amount of USDC into an equal number of "Yes" and "No" shares for a specific market, is a powerful preparatory signal. This action is visible via the /activity endpoint by filtering for type=SPLIT. A whale undertaking this action is essentially minting the ammunition needed for a large subsequent trade or for providing substantial liquidity to the order book. By detecting a large SPLIT event from a single wallet, the system can generate a "pre-whale" alert, flagging that a significant participant is preparing to make a move in a specific market. This provides an earlier, more proactive signal than simply waiting for a trade to appear, offering a significant strategic advantage.
+Furthermore, not all high-volume activity is indicative of a directional, informed bet. A significant portion of trading volume on any exchange comes from market makers, who provide liquidity by placing both buy and sell orders, aiming to profit from the bid-ask spread rather than speculating on the event's outcome. Their activity, while large, is non-directional and represents noise that must be filtered out by an effective whale alert system. A true directional whale will exhibit asymmetric trading behavior. They will be predominantly buying one outcome (e.g., buying "Yes" shares and/or selling "No" shares) or vice versa. In contrast, a market maker's activity will appear more balanced, with a high volume of both buy and sell orders across both outcomes over time. The whale detection algorithm must therefore be designed to analyze a wallet's activity within a given market for this asymmetry. By calculating a "directionality score" based on the ratio of bullish to bearish volume, the system can effectively differentiate between a speculative whale, whose signal should be heeded, and a market maker, whose activity should be disregarded.
+Section III: Architectural Blueprint for the Whale Alert MVP
+This section details a complete, cost-optimized, and scalable serverless architecture for the whale alert MVP. Hosted on Google Cloud Platform (GCP), the design prioritizes minimal operational overhead, inherent resilience, and near-zero running costs, making it ideal for a solo developer to build, deploy, and maintain with confidence.
+3.1 High-Level System Overview
+The system is designed around a serverless-first philosophy, leveraging fully managed GCP services to handle infrastructure, scaling, and orchestration. This approach allows the developer to focus exclusively on the core application logic—detecting whales and generating alerts—rather than on server maintenance, patching, or uptime monitoring.
+The data flow is simple and robust:
+1. Trigger: A scheduled job initiates the process at a regular interval.
+2. Ingest & Process: A serverless function is invoked, which fetches market data from the Polymarket Data-API.
+3. Analyze: The function processes the data, applies the whale detection algorithm, and consults a stateful database to check for previously seen events or wallets.
+4. Alert & Log: If a new whale activity is detected, the function sends an alert to the user and writes a detailed log of its operations and findings to an external, easily accessible location.
+This event-driven, decoupled architecture ensures that each component operates independently, enhancing the system's overall resilience and scalability.
+3.2 Data Ingestion and Orchestration
+The entry point and primary compute layer of the system are handled by two core GCP services.
+* Cloud Scheduler: This fully managed cron job service will act as the system's pacemaker. A job will be configured to send an HTTP request to the main processing function at a fixed interval, such as every one minute. Cloud Scheduler is exceptionally reliable and cost-effective, falling well within the GCP free tier for this usage pattern. It provides a simple, "set-it-and-forget-it" mechanism for orchestrating the entire workflow.
+* Cloud Functions (2nd Gen): The heart of the system will be a 2nd Generation Cloud Function written in Python (e.g., Python 3.12 runtime). This function will contain all the application logic: receiving the trigger from Cloud Scheduler, polling the Polymarket API, executing the detection algorithm, interacting with the database, and dispatching alerts and logs. Cloud Functions are ideal for this use case due to their pay-per-invocation pricing model. The GCP free tier includes 2 million invocations per month, which is more than sufficient for the MVP's needs, making the compute cost effectively zero. The 2nd Gen functions, built on Cloud Run, also offer better performance, longer request timeouts, and more flexible configurations than their predecessors.
+3.3 Data Processing, Analysis, and State Management
+To make intelligent decisions and avoid redundant alerts, the system requires a mechanism to maintain state between invocations. A serverless NoSQL database is the perfect solution for this.
+* Firestore (in Datastore mode): Firestore will serve as the system's lightweight "memory." It will be used to store three key types of information in separate collections:
+   1. Tracked_Markets Collection: This collection will store the configuration of the system, specifically the conditionIds of the Polymarket markets that the user wishes to monitor. The Cloud Function will read from this collection at the start of each run to know which markets to query.
+   2. Whale_Wallets Collection: When the algorithm identifies a new whale, it will create a document in this collection using the wallet address as the ID. This document will store important metadata, such as the timestamp of the first sighting, a running tally of alerts triggered by this wallet, and eventually, a calculated PnL and "confidence score" to track its historical performance.
+   3. Sent_Alerts Collection: To prevent spamming the user with duplicate notifications for the same large trade or activity, the system will log a unique identifier for each alert it sends. Before sending a new alert, it will first query this collection to ensure the same event has not already been reported.
+Firestore is chosen for its seamless integration with Cloud Functions, its automatic scaling, and its own substantial free tier, which includes 1 GB of storage and 50,000 reads per day. This is more than adequate for the MVP's state management needs, contributing further to the $0 operational cost.
+3.4 Alerting and Logging Strategy
+The output of the system is twofold: real-time alerts for actionable intelligence and comprehensive logs for transparency and trust-building.
+* Alerting Mechanism: For the MVP, the alerting mechanism can be implemented simply and at no cost. The Cloud Function can make an HTTP request to a third-party service. Options include:
+   * Email: Using a service like SendGrid, which offers a permanent free tier for sending a limited number of emails per day.
+   * Webhook: Sending a structured JSON payload to a webhook URL for services like Discord or Slack, allowing for instant notifications in a dedicated channel. The alert payload will be a well-defined JSON object containing all relevant context: the market title, the whale's wallet address, the trade size and price, the direction of the bet, and any relevant heuristics that were triggered (e.g., "New Wallet," "Preceded by Large Split").
+* Logging Strategy: A dual-logging strategy will be employed to ensure complete transparency and robust debugging capabilities.
+   1. Primary Log (Google Sheets): A custom Python logging handler will be developed to write structured logs directly to a designated Google Sheet. This serves as the primary, human-readable audit trail for the system. Every action—function invocation, API call, data received, whale detected, alert sent, error encountered—will be recorded as a new row in the sheet. This provides an immediate, filterable, and easily understandable view of the system's behavior, which is invaluable for building trust during the trial and paper-trading phases.
+   2. Secondary Log (Cloud Logging): As a standard feature of GCP, all output from the Cloud Function (including standard print statements and uncaught exceptions) is automatically captured by Cloud Logging. This provides a more powerful, albeit more complex, interface for deep-dive debugging and performance monitoring should any issues arise that cannot be diagnosed from the Google Sheet log.
+This architecture is not only technically sound but is also designed to be inherently resilient and cost-proof, directly addressing the core requirements of the developer. The choice of a fully serverless stack eliminates the entire category of operational burdens associated with traditional server-based deployments. There is no virtual machine to patch, no operating system to secure, and no need to worry about scaling for traffic. Each component is a managed service that scales automatically and is maintained by Google.
+Furthermore, the cost model is exceptionally favorable for an MVP. A polling interval of once per minute results in approximately 44,000 function invocations per month (1,440 \text{ minutes/day} \times 30.5 \text{ days/month}). The GCP free tier for Cloud Functions provides 2 million free invocations per month. Therefore, the system's compute usage will be less than 3% of the free allowance. Similarly, the data stored in Firestore and the logs generated will be orders of magnitude below the free tier limits for storage and operations. The net result is an operational cost that is effectively, and reliably, $0. This removes any financial barrier to long-term testing and validation.
+The resilience of the architecture stems from its decoupled nature. If the Polymarket API is temporarily unavailable, the Cloud Function will simply execute, fail on the API call, log the error to both Google Sheets and Cloud Logging, and terminate. It will not crash a persistent server or enter a problematic state. On the next scheduled interval, Cloud Scheduler will trigger the function again, and the process will repeat. This stateless, fault-tolerant design is fundamental to creating a system that can be trusted to run autonomously without constant supervision.
+
+
+Table 2: GCP Services and Free Tier Allowances for MVP
+GCP Service
+	Role in Architecture
+	Monthly Free Tier Limit
+	Estimated MVP Monthly Consumption
+	Estimated Monthly Cost
+	Cloud Functions
+	Core compute engine for API polling and whale detection logic.
+	2 million invocations; 400,000 GB-seconds
+	~44,000 invocations; <10,000 GB-seconds
+	$0
+	Cloud Scheduler
+	Cron job service to trigger the Cloud Function at a set interval.
+	3 jobs free per month
+	1 job
+	$0
+	Firestore
+	NoSQL database for storing tracked markets, whale data, and sent alerts.
+	1 GB storage; 50,000 reads/day; 20,000 writes/day
+	< 10 MB storage; < 50,000 reads/day; < 10,000 writes/day
+	$0
+	Cloud Logging
+	Default logging for debugging and monitoring function executions.
+	50 GiB free logging allotment per month
+	< 1 GiB
+	$0
+	
+
+Section IV: Core Logic and Implementation Pathways
+This section translates the architectural blueprint into actionable logic, providing the detailed implementation pathways and pseudocode for the core Python Cloud Function. It covers the main execution flow, the whale detection algorithm, the creation of a custom logging handler for Google Sheets, and a strategy for robust error handling.
+4.1 Main Function Execution Flow
+The Cloud Function serves as the central nervous system of the MVP. Its execution is a linear, step-by-step process orchestrated to be both efficient and resilient.
+1. Initialization: The function is triggered by an HTTP request from Cloud Scheduler. It initializes global clients for Firestore and the custom Google Sheets logger.
+2. Configuration Loading: It queries the Tracked_Markets collection in Firestore to retrieve the list of market conditionIds to monitor. If this list is empty, the function logs a warning and exits gracefully.
+3. Data Fetching Loop: The function iterates through the list of tracked markets. For each conditionId, it constructs and executes API calls to the Polymarket Data-API's /trades and /activity endpoints. To optimize, it retrieves the timestamp of the last processed trade for that market from a state store (e.g., Firestore) and requests only data newer than that timestamp.
+4. Algorithm Execution: The JSON response from the API is passed to the Whale Detection Algorithm (detailed in 4.2). This algorithm processes the list of recent trades and activities to identify potential whale signals.
+5. Alert Generation and Deduplication: If the algorithm returns one or more potential alerts, the function iterates through them. For each alert, it generates a unique identifier (e.g., a hash of the transaction ID and wallet address). It then queries the Sent_Alerts collection in Firestore to check if an alert with this identifier has already been sent.
+6. Dispatching: If the alert is new, the function formats a structured alert payload (JSON) and dispatches it via the configured mechanism (e.g., a webhook POST request). It then writes the unique alert identifier to the Sent_Alerts collection to prevent future duplicates.
+7. State Update: The function updates the state store with the timestamp of the latest trade processed for the current market. If a new whale was identified, it also creates or updates the corresponding document in the Whale_Wallets collection.
+8. Logging and Termination: Throughout the entire process, detailed logs are generated for every significant action (e.g., "Starting run," "Fetched 5 new trades for market X," "Whale detected: Wallet Y," "Error calling API: 503 Service Unavailable"). These logs are sent to Google Sheets via the custom handler. The function then returns a 200 OK response to Cloud Scheduler, signaling a successful run.
+4.2 The Whale Detection Algorithm (Pseudocode)
+The following pseudocode outlines the logic for identifying and scoring whale activity. This algorithm is designed to be modular, allowing for easy tuning of thresholds and addition of new heuristics.
+# Pseudocode for the Whale Detection Algorithm
+
+# Define thresholds (configurable)
+MIN_TRADE_VALUE_USD = 10000
+PREPARATORY_WINDOW_HOURS = 2
+DIRECTIONALITY_THRESHOLD = 0.8  # (80% of volume is directional)
+
+function detect_whales(trades, activities, market_id):
+   alerts =
+   
+   # Process trades first to find large transactions
+   for trade in trades:
+       trade_value = trade['price'] * trade['size']
+       
+       if trade_value >= MIN_TRADE_VALUE_USD:
+           whale_wallet = trade
+           
+           # --- Heuristic 1: Preparatory Activity Detection ---
+           is_prepared = False
+           for activity in activities:
+               if (activity['user'] == whale_wallet and 
+                   activity['type'] == 'SPLIT' and
+                   is_within_time_window(activity['timestamp'], trade['timestamp'], PREPARATORY_WINDOW_HOURS)):
+                   
+                   is_prepared = True
+                   break
+           
+           # --- Heuristic 2: Asymmetry and Directional Bet Analysis ---
+           user_trades_in_market = get_user_trades(whale_wallet, market_id, lookback_period=24)
+           
+           bullish_volume = 0
+           bearish_volume = 0
+           total_volume = 0
+           
+           for t in user_trades_in_market:
+               volume = t['price'] * t['size']
+               if t['side'] == 'BUY': # Assuming 'BUY' is for 'Yes' shares
+                   bullish_volume += volume
+               else: # Assuming 'SELL' is for 'Yes' shares
+                   bearish_volume += volume
+               total_volume += volume
+           
+           if total_volume > 0:
+               directionality_score = max(bullish_volume, bearish_volume) / total_volume
+           else:
+               directionality_score = 0
+           
+           is_directional = directionality_score >= DIRECTIONALITY_THRESHOLD
+           
+           # --- Heuristic 3: New Wallet Detection ---
+           is_new_whale = not wallet_exists_in_firestore(whale_wallet)
+           
+           # --- Generate Alert ---
+           # Only generate an alert if the trade is directional (not a market maker)
+           if is_directional:
+               alert = {
+                   "wallet": whale_wallet,
+                   "market_id": market_id,
+                   "trade_id": trade['transactionHash'],
+                   "value_usd": trade_value,
+                   "side": trade['side'],
+                   "price": trade['price'],
+                   "heuristics_triggered": {
+                       "is_new_whale": is_new_whale,
+                       "is_prepared_by_split": is_prepared,
+                       "directionality_score": directionality_score
+                   }
+               }
+               alerts.append(alert)
+               
+   return alerts
+
+4.3 Implementation: Custom Logging Handler for Google Sheets
+A key requirement for building trust in the system is a transparent, human-readable log of all its operations. A custom Python logging handler that writes directly to a Google Sheet provides this perfectly. The implementation involves two main parts: setting up the GCP environment and writing the Python handler class.
+Step 1: GCP and Google Sheets Setup
+1. Enable APIs: In your GCP project, navigate to the API Library and enable the "Google Drive API" and the "Google Sheets API".
+2. Create Service Account: In the IAM & Admin section, create a new service account. Give it a descriptive name (e.g., sheets-logging-sa).
+3. Grant Permissions: Grant this service account the "Editor" role on the project. This allows it to modify Google Sheets and Drive files owned by the project.
+4. Generate Key: Create a JSON key for the service account and download it securely. This file contains the credentials the Python script will use to authenticate.
+5. Create and Share Sheet: Create a new Google Sheet that will serve as the log file. In the "Share" dialog, add the client_email from the downloaded JSON key file as an editor. This is a critical step that authorizes the service account to write to this specific sheet.
+Step 2: Python GoogleSheetHandler Class
+This class will use the gspread library to interact with the Google Sheets API. It will inherit from Python's standard logging.Handler and override the emit method.
+# requirements.txt:
+# gspread
+# google-auth-oauthlib
+
+import logging
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
+
+class GoogleSheetHandler(logging.Handler):
+   """
+   A custom logging handler that writes log records to a Google Sheet.
+   """
+   def __init__(self, credentials_path, sheet_key, worksheet_name):
+       super().__init__()
+       
+       # Define scopes required for Sheets and Drive API
+       scopes = [
+           'https://www.googleapis.com/auth/spreadsheets',
+           'https://www.googleapis.com/auth/drive'
+       ]
+       
+       # Authenticate using the service account JSON key
+       creds = Credentials.from_service_account_file(credentials_path, scopes=scopes)
+       self.gc = gspread.authorize(creds)
+       
+       # Open the worksheet
+       self.worksheet = self.gc.open_by_key(sheet_key).worksheet(worksheet_name)
+       
+       # Optional: Write header row if the sheet is empty
+       if not self.worksheet.get_all_values():
+           header =
+           self.worksheet.append_row(header)
+
+   def emit(self, record):
+       """
+       Overrides the default emit method to write the log to the Google Sheet.
+       """
+       try:
+           # Format the log record into a list of values for the row
+           timestamp = datetime.utcfromtimestamp(record.created).strftime('%Y-%m-%d %H:%M:%S')
+           row =
+           
+           # Append the row to the sheet
+           self.worksheet.append_row(row)
+           
+       except Exception as e:
+           # If logging to the sheet fails, fall back to standard error
+           print(f"Failed to log to Google Sheet: {e}")
+           self.handleError(record)
+
+Step 3: Integration into the Cloud Function
+Within the main Cloud Function file, this handler is instantiated and added to the root logger. This ensures all subsequent logging calls are routed to the sheet.
+# In the main Cloud Function file
+
+import logging
+# from google_sheet_handler import GoogleSheetHandler # Assume the class is in this file
+
+# --- Global Setup ---
+# Store credentials and sheet key securely (e.g., as environment variables)
+CREDENTIALS_FILE = "path/to/your/service-account.json"
+SHEET_KEY = "your_google_sheet_key"
+WORKSHEET_NAME = "Logs"
+
+# Get the root logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Remove default handlers if any
+if logger.hasHandlers():
+   logger.handlers.clear()
+
+# Add the custom Google Sheet handler
+sheet_handler = GoogleSheetHandler(CREDENTIALS_FILE, SHEET_KEY, WORKSHEET_NAME)
+logger.addHandler(sheet_handler)
+
+# --- Main Function ---
+def main_function(request):
+   logger.info("Function execution started.")
+   try:
+       #... your core logic here...
+       logger.info("Whale detection complete. 1 alert generated.")
+   except Exception as e:
+       logger.error(f"An unhandled exception occurred: {e}", exc_info=True)
+   
+   logger.info("Function execution finished.")
+   return "OK"
+
+This implementation provides the exact transparent, convenient, and trustworthy audit trail required. It transforms the abstract need for logging into a concrete, practical tool for system validation. The ability to simply open a spreadsheet and see a live, timestamped feed of every action the system takes is the most direct way to build confidence during the crucial trial period. While standard production systems rely on tools like Cloud Logging for their power and scalability, the simplicity and accessibility of a Google Sheet are far superior for the specific goal of enabling a solo developer to trust a new financial tool before committing capital.
+4.4 Robust Error Handling
+To ensure the system is trustworthy, it must be resilient to failure. The code will be structured with comprehensive error handling to gracefully manage unexpected issues, such as API downtime, network errors, or malformed data.
+* Granular Exception Catching: Instead of a single, monolithic try...except Exception block, the code will use specific exception handlers for different parts of the process. For example, network-related errors during API calls (requests.exceptions.RequestException) will be caught separately from database errors (google.cloud.exceptions.GoogleCloudError).
+* Logging with Context: When an exception is caught, it will be logged using logger.error(). The exc_info=True argument will be passed to automatically include a full stack trace in the log record. This provides maximum context for debugging, ensuring that the exact location and nature of any failure are immediately apparent in the Google Sheet log.
+* Fail-Safe Operation: The error handling will ensure that a failure in one part of the process (e.g., processing a single market) does not crash the entire function execution. The loop will continue to the next market, ensuring the system is as resilient as possible. A failure to send an alert will be logged as an error, but it will not stop the function from processing other alerts or markets.
+Section V: Operational Viability and Risk Mitigation
+This final section addresses the practical aspects of deploying, managing, and securing the MVP. It focuses on establishing a secure and automated deployment pipeline, implementing robust cost controls, analyzing the complex regulatory and platform-specific risks, and outlining a clear, phased approach for system validation and eventual production use.
+5.1 Secure Deployment with GitHub Actions and OIDC
+Manually deploying code and managing credentials is a significant operational burden and a security risk. A secure, automated Continuous Integration/Continuous Deployment (CI/CD) pipeline is essential for a trustworthy system. The recommended approach uses GitHub Actions with OpenID Connect (OIDC) to eliminate the need for long-lived service account keys.
+1. Configure Workload Identity Federation in GCP: The first step is to establish a trust relationship between your GCP project and your GitHub repository. This is done by creating a Workload Identity Pool in GCP and configuring an OIDC provider that points to GitHub's token issuer (https://token.actions.githubusercontent.com).
+2. Bind Service Account: A dedicated GCP service account (e.g., github-actions-deployer-sa) is created for deployment purposes. This service account is then granted permission to be impersonated by GitHub Actions workflows originating from your specific repository. This is done by adding an IAM policy binding that links the service account to the Workload Identity Pool.
+3. Grant Deployment Permissions: The github-actions-deployer-sa is granted the necessary IAM roles to deploy and manage Cloud Functions and related resources (e.g., "Cloud Functions Developer," "Service Account User").
+4. Create GitHub Actions Workflow: A workflow file (.github/workflows/deploy.yml) is created in the repository. This YAML file defines the deployment process.
+   * Permissions: The workflow must be granted id-token: write permissions, which allows it to request an OIDC token from GitHub.
+   * Authentication Step: The workflow uses the official google-github-actions/auth action. This action automatically handles the OIDC token exchange, securely authenticating to GCP and obtaining short-lived credentials for the bound service account without ever exposing a static key.
+   * Deployment Step: Subsequent steps in the workflow use the gcloud CLI (set up via google-github-actions/setup-gcloud) to deploy the Cloud Function.
+This OIDC-based approach is the industry best practice for security. It ensures that no static, long-lived credentials need to be stored as GitHub secrets, drastically reducing the risk of a compromised key.
+5.2 Cost Management and Optimization
+A primary concern for any new project is controlling costs. As established in the architectural blueprint, the MVP is designed to operate entirely within the GCP free tier, resulting in an expected monthly cost of $0. However, to provide an absolute safeguard against unexpected usage or changes in the free tier, proactive cost management controls must be implemented.
+* Budget Alerts: A budget should be created in the GCP Billing console for the project. A low monthly budget amount (e.g., $5 or $10) should be set. The system will then be configured to send email alert notifications when costs reach specific thresholds of this budget, such as 50%, 90%, and 100% of the actual spend. This provides an early warning system if costs begin to accrue for any reason.
+* Programmatic Kill Switch: For maximum protection, GCP allows for the programmatic disabling of billing on a project. This can be configured as an automated response to a budget alert. When the budget threshold is exceeded, a notification is sent to a Pub/Sub topic. This topic can trigger a separate, simple Cloud Function whose sole purpose is to call the Cloud Billing API and detach the billing account from the project. This acts as an ultimate "kill switch," shutting down all billable services in the project and guaranteeing that costs cannot spiral out of control. It is important to note that this is a destructive action and may result in irretrievable data loss, but it provides a powerful safety net during the initial trial period.
+5.3 Regulatory and Platform Risk Analysis
+The technical implementation of the whale alert system is relatively straightforward; the most significant and nuanced risks are jurisdictional and platform-specific. A trustworthy system must not only function correctly but also operate within a well-understood risk framework.
+* Risk 1: U.S. State-Level Restrictions: The CFTC's no-action letter provides a legal framework for Polymarket to operate at the federal level in the United States. However, gambling and derivatives trading are also regulated at the state level. As Polymarket US launches, it is highly probable that access will be restricted in certain states based on local laws. The system operator must be aware of their own state's regulations and confirm their eligibility to participate on the platform. Acting on an alert in a restricted state could carry legal consequences.
+* Risk 2: The VPN Gray Area: The system is designed to track whales on both the new Polymarket US platform and the existing global platform. Alerts generated from the global platform may pertain to markets not offered to U.S. users. To act on such an alert, a U.S.-based user might be tempted to use a Virtual Private Network (VPN) to circumvent geo-blocking. This action would almost certainly violate Polymarket's Terms of Service and could place the user in a legally precarious position, as they would be accessing a platform not licensed for their jurisdiction. This risk must be clearly understood and accepted by the operator.
+* Risk 3: Market Resolution Disputes and Platform Risk: The signals generated by the system are only as good as the integrity of the underlying market. Polymarket's market resolution process, which relies on a decentralized oracle system (UMA), is not infallible. Markets with ambiguously worded resolution criteria can lead to contentious disputes, as was the case with a market on whether Robert F. Kennedy Jr. would endorse Donald Trump. In such cases, the "correct" outcome can be subjective, and the final resolution may feel arbitrary to some participants. A whale's bet, no matter how well-informed, can ultimately lose if the market resolves against them due to a controversial interpretation of the rules. The system operator must account for this inherent platform risk and understand that even the strongest signals are not guarantees.
+The most profound roadblock for this project is not technical but jurisdictional. The system's code can be perfected, but its utility is ultimately constrained by a complex and fragmented global legal map. An alert for a trade on the U.S. platform for a market on the outcome of a U.S. election is likely to be legally actionable for a compliant U.S. user. However, an alert for a trade on the global platform for a European political event may not be. Therefore, for the system to be truly trustworthy and convenient, its alerts must provide this crucial jurisdictional context. Each notification should explicitly state whether the activity occurred on "Polymarket US" or "Polymarket Global," empowering the operator to make not just a financially sound but also a legally informed decision.
+5.4 The Trial Period and Path to Production
+A methodical, phased approach to deploying and validating the system is essential before committing any real capital. This trial period is designed to build confidence in the system's technical reliability and the strategic validity of its signals.
+* Phase 1: System Validation: After the initial deployment, the first phase is focused purely on technical verification. The system will be run in a live environment, polling real Polymarket data. The primary objective is to monitor the Google Sheet log to confirm that the system is operating as expected. This includes verifying that API calls are being made correctly, data is being parsed without errors, the detection algorithm is running, and logs are being written consistently. Any bugs or errors in the core mechanics of the system should be identified and fixed during this phase.
+* Phase 2: Paper Trading: Once the system is technically stable, the second phase involves validating the quality of its alerts. During this phase, every alert generated by the system will be used to make a simulated, or "paper," trade. These trades will be recorded in a separate spreadsheet, tracking the market, entry price, position size, and eventual outcome. The PnL of this simulated portfolio will be tracked over a statistically significant period (e.g., one to three months, or across at least 50-100 alert events). This phase is critical for empirically measuring the profitability of the whale-tracking strategy and for fine-tuning the algorithm's thresholds.
+* Phase 3: Live Trading: Only after the system has proven to be both technically reliable (Phase 1) and strategically profitable in simulation (Phase 2) should the operator consider moving to live trading. This final phase involves committing small, carefully managed amounts of real capital based on the system's alerts. Capital allocation should be scaled up gradually as confidence in the system and its real-world performance grows. This disciplined, three-phase approach ensures that financial risk is only taken after technical and strategic risks have been thoroughly mitigated.
+Works cited
+1. Let insiders trade - Blockworks, https://blockworks.co/news/insider-trading-polymarket 2. Polymarket Makes Crypto-Betting Mainstream: Is It a Killer App? - Finance Magnates, https://www.financemagnates.com/cryptocurrency/polymarket-makes-crypto-betting-mainstream-is-it-a-killer-app/ 3. How Does Polymarket Work? - Webopedia, https://www.webopedia.com/crypto/learn/how-does-polymarket-work/ 4. Polymarket - Wikipedia, https://en.wikipedia.org/wiki/Polymarket 5. Polymarket Set for U.S. Relaunch Within Days - Unchained, https://unchainedcrypto.com/polymarket-set-for-u-s-relaunch-within-days/ 6. Polymarket secures US return with license approval - Mitrade, https://www.mitrade.com/insights/news/live-news/article-3-1166544-20251002 7. Crypto-betting platform Polymarket buys licensed exchange, seeks U.S. re-entry - The Logic, https://thelogic.co/briefing/crypto-betting-platform-polymarket-buys-licensed-exchange-seeks-u-s-re-entry/ 8. Polymarket Prepares U.S. Return After Securing CFTC Approval ..., https://www.bitget.com/news/detail/12560604998163 9. Polymarket Approved to Relaunch: What It Means for Prediction Markets - Kelman PLLC, https://kelman.law/polymarket-approved-to-relaunch/ 10. Nobel Peace Prize bets on Polymarket under scrutiny: Report - TradingView, https://www.tradingview.com/news/cointelegraph:280987598094b:0-nobel-peace-prize-bets-on-polymarket-under-scrutiny-report/ 11. Polymarket can go live in the US following CFTC ruling, CEO says | The Block, https://www.theblock.co/post/369377/polymarket-can-go-live-in-the-us-following-cftc-ruling-ceo-says 12. Polymarket Cleared for U.S. Relaunch After CFTC Ruling - MLQ.ai | Stocks, https://mlq.ai/news/polymarket-cleared-for-us-relaunch-after-cftc-ruling/ 13. Polymarket Cleared for U.S. Relaunch After CFTC Ruling - World Casino News, https://news.worldcasinodirectory.com/polymarket-cleared-for-u-s-relaunch-after-cftc-ruling-119657 14. Polymarket U.S. Relaunch: CFTC Approval and What to Know ..., https://www.indexbox.io/blog/polymarket-reopens-to-us-users-after-cftc-green-light/ 15. How to Identify Insiders on Polymarket for High Win Rates - KuCoin, https://www.kucoin.com/news/flash/how-to-identify-insiders-on-polymarket-for-high-win-rates 16. Singapore bans Polymarket amid national crackdown on online gambling sites | The Block, https://www.theblock.co/post/334175/singapore-bans-polymarket-amid-national-crackdown-on-online-gambling-sites 17. Polymarket Ban Expands as Thailand Joins the List—Global Crackdown Incoming?, https://www.ccn.com/news/crypto/polymarket-ban-country-list/ 18. Polymarket platform is now unavailable for users in France | Bitget News, https://www.bitget.com/news/detail/12560604369056 19. Polymarket blocks French users, bets still go through VPN - Mitrade, https://www.mitrade.com/insights/news/live-news/article-3-484788-20241123 20. Singapore Blocks Access to Polymarket Over Gambling Law - Decrypt, https://decrypt.co/300583/singapore-blocks-access-to-polymarket-over-gambling-law 21. Live Polymarket Odds Are Now on Your Charts with TrendSpider, https://trendspider.com/blog/polymarket-custom-indicators/ 22. I built an AI that does deep research on Polymarket bets : r/AI_Agents - Reddit, https://www.reddit.com/r/AI_Agents/comments/1n6w9ez/i_built_an_ai_that_does_deep_research_on/ 23. With the expectation of Polymarket issuing tokens, which ecosystem projects are worth speculating on? | Bitget News, https://www.bitget.com/news/detail/12560605015552 24. Polymarket Changelog - Polymarket Documentation, https://docs.polymarket.com/changelog/changelog 25. API Rate Limits - Polymarket Documentation, https://docs.polymarket.com/quickstart/introduction/rate-limits 26. Endpoints - Polymarket Documentation, https://docs.polymarket.com/developers/CLOB/endpoints 27. How to Use the Polymarket API to Analyse Market Data and Make Predictions, https://apidog.com/blog/polymarket-api/ 28. Overview - Polymarket Documentation, https://docs.polymarket.com/developers/gamma-markets-api/overview 29. Get Trades (Data-API) - Polymarket Documentation, https://docs.polymarket.com/developers/CLOB/trades/trades-data-api 30. Get user activity - Polymarket Documentation, https://docs.polymarket.com/api-reference/core/get-user-activity 31. Polymarket Data API Docs · GitHub, https://gist.github.com/shaunlebron/0dd3338f7dea06b8e9f8724981bb13bf 32. Get User On-Chain Activity (Data-API) - Polymarket Documentation, https://docs.polymarket.com/developers/misc-endpoints/data-api-activity 33. Overview - Polymarket Documentation5 | PDF | Function (Mathematics) - Scribd, https://www.scribd.com/document/923788193/Overview-Polymarket-Documentation5 34. polymarket-apis · PyPI, https://pypi.org/project/polymarket-apis/0.3.0/ 35. Free Trial and Free Tier Services and Products - Google Cloud, https://cloud.google.com/free 36. Free cloud features and trial offer | Google Cloud Free Program ..., https://cloud.google.com/free/docs/free-cloud-features 37. Write and view logs | Cloud Functions for Firebase - Google, https://firebase.google.com/docs/functions/writing-and-viewing-logs 38. Monitoring and logging overview | Cloud Run - Google Cloud, https://cloud.google.com/run/docs/monitoring-overview 39. Python quickstart | Google Sheets, https://developers.google.com/workspace/sheets/api/quickstart/python 40. Authentication — gspread 3.7.0 documentation, https://docs.gspread.org/en/v3.7.0/oauth2.html 41. Create service accounts | Identity and Access Management (IAM ..., https://cloud.google.com/iam/docs/service-accounts-create 42. Create access credentials | Google Workspace, https://developers.google.com/workspace/guides/create-credentials 43. Authentication — gspread 6.1.2 documentation, https://docs.gspread.org/en/v6.1.2/oauth2.html 44. [GitHub Actions Series #22] Deploy Serverless Apps on Google ..., https://medium.com/@bhpuri/series-23-824bc2f1b9f9 45. Create, edit, or delete budgets and budget alerts | Cloud Billing ..., https://cloud.google.com/billing/docs/how-to/budgets 46. Avoid surprise bills | Firebase Documentation - Google, https://firebase.google.com/docs/projects/billing/avoid-surprise-bills 47. Disable billing usage with notifications - Google Cloud, https://cloud.google.com/billing/docs/how-to/disable-billing-with-notifications 48. Why PolyMarket users are claiming they were scammed by the Prediction Market. : r/CryptoCurrency - Reddit, https://www.reddit.com/r/CryptoCurrency/comments/1ezp1gn/why_polymarket_users_are_claiming_they_were/

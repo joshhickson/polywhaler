@@ -1,0 +1,293 @@
+﻿Strategic Architectural Analysis for the Polymarket Whale Alert System: A Deep Dive into Data Storage and Machine Learning Infrastructure
+
+
+
+
+Introduction
+
+
+This report serves as a strategic follow-up to the initial technical due diligence conducted on the Polymarket Whale Alert System. The foundational blueprint demonstrated a robust understanding of the prediction market ecosystem and a pragmatic approach to building a Minimum Viable Product (MVP).1 With the MVP's architectural path fortified, this analysis shifts focus to the critical post-MVP phase, or "Version 2.0," where long-term scalability, analytical power, and cost-efficiency become paramount.
+The primary objectives of this deep-dive analysis are twofold. First, it will conduct a rigorous comparative analysis of two distinct data storage solutions: the incumbent Google Cloud Firestore versus the PostgreSQL-based alternative, Supabase. This evaluation will move beyond a surface-level feature comparison to deliver a definitive, evidence-based recommendation grounded in architectural suitability and long-term financial viability for the system's advanced analytical workloads. Second, this report will provide a strategic evaluation of machine learning infrastructure, specifically comparing the Infrastructure-as-a-Service (IaaS) model of Lambda Labs against the fully managed Platform-as-a-Service (PaaS) offering of Google Cloud's Vertex AI. The goal is to define the optimal pathway for evolving the system's rule-based heuristics into a more sophisticated, adaptive machine learning model.
+Ultimately, this document will furnish an actionable and data-driven roadmap, empowering the developer to make critical architectural decisions that will ensure the Polymarket Whale Alert System is not only functional at inception but is also positioned for sustained growth, analytical superiority, and profitability.
+
+
+Section I: Comparative Analysis of Data Storage Solutions: GCP Firestore vs. Supabase
+
+
+The selection of a data storage backend is one of the most consequential decisions in a system's lifecycle, profoundly influencing its performance, cost, and capacity for future evolution. The initial report correctly identified the serverless GCP stack, with Firestore as its database, as an excellent choice for the MVP. However, the advanced analytical features envisioned for Version 2.0 necessitate a re-evaluation of this choice against alternatives better suited for complex, relational data workloads.1
+
+
+1.1 Foundational Architecture: Relational (PostgreSQL) vs. Document (NoSQL)
+
+
+The core tension between Supabase and Firestore lies in their foundational database paradigms: Supabase is built upon the time-tested, relational model of PostgreSQL, while Firestore is a modern, NoSQL document database.2 The optimal choice is determined not by which is "better" in a general sense, but which is better aligned with the specific data structure and query patterns of the application.
+The V2 features outlined in the initial due diligence, such as historical Profit & Loss (P&L) tracking, multi-whale confirmation signals, and wallet performance analytics, are inherently relational.1 The system's data entities—Whale_Wallets, Trades, and Tracked_Markets—are deeply interconnected. For example, calculating the historical P&L of a single whale requires joining that whale's entire trade history with the corresponding resolution data from each market they participated in.
+GCP Firestore (NoSQL): Firestore's document-based structure excels at storing flexible, JSON-like data and scales horizontally with ease, making it a strong choice for many modern web applications.3 However, this flexibility comes at a cost when dealing with relational queries. Performing a complex join, like the P&L calculation described above, is not natively supported. Developers must choose between two suboptimal workarounds:
+1. Client-Side Joins: Issuing multiple, separate read requests (e.g., first fetch the whale's trades, then for each trade, fetch the corresponding market data) and combining the data in the application logic. This is inefficient, increases code complexity, and dramatically inflates the number of billable read operations.
+2. Data Denormalization: Storing redundant copies of data to pre-join information. For example, each Trade document could also store a copy of the Market resolution data. This can improve read performance but introduces significant data consistency challenges and increases storage costs.
+The performance and cost challenges identified in the initial report are not superficial issues but are direct symptoms of this fundamental architectural mismatch between Firestore's NoSQL model and the system's relational, analytical requirements.3
+Supabase (PostgreSQL): In contrast, Supabase is built on PostgreSQL, one of the world's most advanced open-source relational databases.4 This architecture is intrinsically aligned with the system's data model. The relationships between wallets, trades, and markets can be explicitly defined through foreign keys, and complex analytical queries can be executed with unparalleled efficiency using standard SQL. A single, powerful SQL query can perform the entire P&L calculation on the database server, returning only the final result to the application. This approach leverages decades of database optimization and is far more efficient, maintainable, and scalable for the analytical workloads central to the V2 system's value proposition.5
+
+
+1.2 Cost Modeling and Long-Term Financial Viability
+
+
+The architectural mismatch of Firestore directly translates into a significant financial liability as the system scales. The initial report's warning of "free tier fragility" is empirically validated when modeling the cost of V2 workloads against the two platforms' distinct pricing models.1 Firestore primarily bills based on the number of document reads, writes, and deletes, while Supabase uses a more traditional resource-based model, with tiered plans that include generous allowances for storage, compute, and data egress.4
+To illustrate this divergence, consider a realistic V2 workload: performing a daily P&L analysis for 100 tracked "whale" wallets, each with an average of 500 historical trades.
+   * Firestore Cost Projection: To calculate P&L, the system would need to read each of the 500 trade documents for all 100 whales. This amounts to $100 \times 500 = 50,000$ document reads. If this calculation also requires fetching corresponding market data for each trade, the number of reads could double to 100,000. Performing this single analytical task just once per day would consume or exceed the entire daily free quota of 50,000 reads.1 Over a month, this workload would generate millions of billable read operations, leading to a substantial and unpredictable bill that scales directly with the system's usage and effectiveness.
+   * Supabase Cost Projection: The same workload on Supabase would be executed as a single, efficient SQL query. Because Supabase's Pro plan ($25/month) does not charge per database operation, this entire analytical task would be covered by the flat monthly fee, provided the database size and compute resources remain within the plan's generous limits (e.g., 8 GB database, 100 GB file storage).8 This provides immense cost predictability, a critical advantage for a growing application.
+The following table quantifies this financial disparity, providing a clear, data-driven basis for the architectural decision.
+Table 1: V2 Monthly Cost Projection: Firestore vs. Supabase
+
+
+Metric
+	GCP Firestore (Pay-as-you-go)
+	Supabase (Pro Plan)
+	Justification
+	Assumed Workload
+	100 whales, 500 trades/whale, daily P&L calc.
+	100 whales, 500 trades/whale, daily P&L calc.
+	A realistic V2 analytical scenario.
+	Daily Document Reads
+	~50,000 reads
+	N/A (not billed per read)
+	$100 \text{ whales} \times 500 \text{ trades} \times 1 \text{ read/trade}$
+	Monthly Reads (30 days)
+	~1,500,000 reads
+	N/A
+	Total reads, far exceeding the free tier.
+	Cost per 100k Reads
+	~$0.18 8
+	N/A
+	Firestore's standard pricing for document reads.
+	Estimated Monthly Cost
+	~$27.00
+	$25.00 9
+	Demonstrates the cost divergence under analytical load.
+	Cost Predictability
+	Low (scales with usage)
+	High (fixed base fee)
+	A key strategic and financial consideration.
+	Note: The Firestore cost is a conservative estimate assuming only one read per trade. Real-world implementation could require more reads, further increasing the cost.
+
+
+1.3 Developer Experience, Ecosystem, and Operational Considerations
+
+
+While architectural alignment and cost are primary drivers, the developer experience and long-term operational factors are also crucial.
+   * GCP Ecosystem Integration: The primary advantage of retaining Firestore is the simplicity of a homogenous cloud environment. The existing GCP Cloud Functions, IAM roles, and deployment pipelines would continue to work seamlessly without modification. Integrating Supabase introduces a second vendor, requiring the management of a separate set of credentials and configurations. However, this integration is not a significant technical hurdle; a GCP Cloud Function can connect to a Supabase PostgreSQL database as easily as any other external database, using a standard connection string and a language-specific client library.11
+   * The "Inactivity Pause": A potential concern with Supabase is its policy of pausing free-tier projects after one week of inactivity.9 This requires either manual intervention or an automated workaround, such as a scheduled GitHub Action or Vercel cron job, to "ping" the database and keep it active.14 While this may seem like a drawback, it is a tactical nuisance rather than a strategic flaw. The cost analysis above demonstrates that running the V2 system on a free tier is financially unviable on either platform due to the analytical workload. The recommended Supabase Pro plan, which is necessary for a production V2 system, never pauses projects, rendering this concern entirely moot for the target architecture.9
+   * Vendor Lock-In and Flexibility: Perhaps the most significant long-term strategic advantage of Supabase is its open-source foundation.3 While the managed cloud offering provides convenience, the user is never locked into the platform. If costs, compliance, or performance requirements change in the future, the entire Supabase stack can be self-hosted on any cloud provider or on-premises infrastructure.17 This provides an ultimate escape hatch and complete data sovereignty. Firestore, as a proprietary Google service, does not offer this flexibility, creating a significant vendor lock-in risk.3
+
+
+1.4 Recommendation and Implementation Roadmap
+
+
+Based on the comprehensive analysis of architectural alignment, long-term cost modeling, and strategic flexibility, the recommendation is unequivocal.
+Recommendation: For the Version 2.0 system, the data storage backend should be migrated from GCP Firestore to Supabase. The relational nature of PostgreSQL is fundamentally better suited to the system's analytical requirements, the predictable pricing model offers superior long-term financial viability, and the open-source architecture eliminates the risk of vendor lock-in.
+A phased implementation is recommended to ensure a smooth transition:
+   1. MVP Phase: Continue with the planned GCP Firestore-based MVP. This approach remains sound for validating the core business logic and whale detection heuristics while leveraging the GCP free tier to de-risk the initial development phase.
+   2. Transition to V2: Upon successful MVP validation, commence V2 development on a new Supabase Pro plan project. This immediately resolves the "inactivity pause" issue and provides the necessary resources for building and testing advanced analytical features.
+   3. Data Migration: Implement a one-time migration script to transfer the historical trade, wallet, and market data from Firestore to the new Supabase PostgreSQL database.
+   4. Service Reconfiguration: Update the existing GCP Cloud Functions to connect to the Supabase database. This involves replacing the Firestore client library with a PostgreSQL client library (e.g., pg for Node.js) and updating the data access logic to use SQL queries instead of Firestore methods. Securely store the Supabase connection string in GCP Secret Manager and grant the Cloud Function's service account access to it.12
+
+
+Section II: Evaluating Machine Learning Infrastructure for V2 Signal Intelligence
+
+
+The V2 roadmap correctly identifies the evolution from a static, rule-based heuristic model to a dynamic machine learning (ML) model as a key pathway to maintaining a competitive edge.1 This transition requires a deliberate choice of ML infrastructure. The analysis now shifts to evaluating the most effective platform for training the first iteration of this predictive model, comparing the raw infrastructure of Lambda Labs with the managed platform of Google Vertex AI.
+
+
+2.1 Defining the Machine Learning Task: Tabular Classification
+
+
+Before comparing platforms, it is essential to precisely define the machine learning problem. The objective is to create a model that can predict the likelihood of a detected "whale trade" being profitable. This is a classic supervised learning problem using tabular data.19
+   * Dataset: The training data will be a structured table compiled from the historical data collected by the system. Each row will represent a single trade made by a previously identified whale.
+   * Input Features (X): The columns of the table will consist of the quantitative metrics associated with each trade, such as:
+   * trade_value_usd
+   * wallet_age_days
+   * market_impact_percent
+   * directionality_score
+   * is_liquidity_taker (boolean)
+   * wallet_historical_pnl
+   * time_since_last_trade
+   * Target Variable (y): The label to be predicted will be a binary classification: is_profitable. This label is determined after the market resolves (e.g., 1 if the trade resulted in a profit, 0 otherwise).
+   * Model Objective: The model's goal is to learn the complex, non-linear relationships between the input features and the target variable. Once trained, the model will take the features of a new whale trade in real-time and output a probability score (e.g., 0.85), which will serve as the new, more accurate "Confidence Score" for generating alerts.21
+
+
+2.2 Platform Comparison: Lambda Labs (IaaS) vs. Google Vertex AI (PaaS)
+
+
+The choice between Lambda Labs and Vertex AI represents a classic trade-off between control and convenience, or Infrastructure-as-a-Service (IaaS) versus Platform-as-a-Service (PaaS).
+   * Lambda Labs (IaaS): Lambda Labs specializes in providing high-performance, on-demand GPU cloud infrastructure tailored for ML practitioners.22 When a user provisions an instance, they receive a virtual machine with a powerful NVIDIA GPU (e.g., an H100) and are given root access.23 This is the "high control, raw power" option. The developer is responsible for the entire ML workflow: setting up the software environment (installing Python, CUDA drivers, ML frameworks like PyTorch or TensorFlow), managing data transfer, writing the complete training and evaluation scripts, and manually managing the lifecycle of the instance. While this approach offers maximum flexibility and highly competitive hourly compute rates, it demands significant developer time and deep expertise in both machine learning and systems administration.25
+   * Google Vertex AI (PaaS): Vertex AI is a fully managed, end-to-end ML platform from Google Cloud.27 For the task of tabular classification, its most compelling feature is AutoML, a service that automates the entire model development process.19 This is the "high abstraction, high velocity" option. The developer's primary responsibility is to provide a clean, labeled dataset. Vertex AI AutoML then automatically handles feature engineering, model architecture selection, hyperparameter tuning, and training.29 This dramatically accelerates the path from data to a deployable model, but this convenience comes at a premium. Vertex AI's pricing is more complex and significantly higher on a per-hour basis, with charges for training node hours, model deployment, and underlying services like data processing pipelines.30
+
+
+2.3 Workflow and Total Cost of Ownership (TCO) Analysis
+
+
+A simple comparison of hourly compute costs is misleading. A holistic Total Cost of Ownership (TCO) analysis, which crucially factors in the developer's time, provides a more accurate picture of the true cost of developing the initial model on each platform.
+The end-to-end workflow differs starkly:
+   * Lambda Labs Workflow:
+   1. Provision a GPU instance.
+   2. SSH into the instance and install all necessary software (Python, libraries, etc.).
+   3. Write and debug a data preprocessing script to load and clean the tabular data.
+   4. Write and debug a model training script using a framework like Scikit-learn or XGBoost, implementing cross-validation, hyperparameter search, and evaluation logic.
+   5. Execute the training script, monitoring for errors.
+   6. Save the trained model artifact to storage.
+   7. Manually de-provision the instance to stop billing.
+   * Vertex AI AutoML Workflow:
+   1. Upload the labeled CSV dataset to Google Cloud Storage.
+   2. From the Vertex AI console, create a new Dataset resource, pointing to the CSV file.
+   3. Launch a new AutoML Tabular Training job from the GUI.
+   4. Specify the dataset, select the is_profitable column as the target, and define a training budget (e.g., 4 node hours).
+   5. Click "Start Training" and wait for the job to complete.
+   6. Review the automatically generated evaluation metrics and feature importance scores in the console.20
+For a solo developer, time is the most valuable and constrained resource. The following TCO estimate for training the first version of the model reveals the true cost-benefit trade-off.
+Table 2: Estimated TCO for Initial Model Training
+
+
+Cost Component
+	Lambda Labs (IaaS)
+	Google Vertex AI (AutoML)
+	Justification
+	Est. Developer Time
+	~40 hours
+	~4 hours
+	Time for environment setup, coding, and manual tuning vs. simple GUI configuration.
+	Developer Cost (@$100/hr)
+	$4,000
+	$400
+	Quantifies the value of developer velocity and opportunity cost.
+	Est. GPU/Training Time
+	8 hours
+	4 node-hours
+	Assumed compute duration for training and tuning.
+	Platform Compute Cost
+	8 hr * ~$2.49/hr = $19.92 23
+	4 hr * $21.25/hr = $85.00 31
+	Direct infrastructure cost for an H100 GPU vs. an AutoML node.
+	Other Platform Costs
+	~$0
+	~$30.00
+	Estimated cost for associated services like Vertex AI Pipelines and Dataflow.32
+	Total Estimated TCO
+	~$4,019.92
+	~$515.00
+	Reveals Vertex AI is the significantly cheaper option for the first iteration when the full cost of development is considered.
+	
+
+2.4 Recommendation for a Phased ML Implementation
+
+
+The TCO analysis makes it clear that the optimal platform is not a static choice but depends on the maturity of the machine learning initiative. A binary decision between the two platforms would be strategically flawed. Instead, a phased approach allows the project to leverage the unique strengths of each platform at the appropriate time.
+The immediate goal is not to build the world's most optimized classification model, but to rapidly validate whether an ML-based approach can provide a tangible improvement over the V1 heuristic system. This is a high-risk, high-reward experiment where the primary objective is to minimize the time and effort required to obtain a clear signal on its viability. Vertex AI AutoML is explicitly designed for this purpose, offering the fastest possible path to a well-performing baseline model.29
+Once this ML approach is validated and begins contributing to the system's profitability, the project's priorities will naturally shift. The focus will move from speed-of-validation to long-term cost optimization, model sophistication, and interpretability. At this mature stage, the higher recurring costs and "black box" nature of AutoML become strategic liabilities. This is the point at which migrating the now-proven modeling pipeline to a custom-coded solution on a cheaper IaaS platform like Lambda Labs becomes the logical and financially prudent next step.
+Recommendation: A strategic, two-phase approach to ML implementation is recommended.
+   1. Phase 1 (Validation): Utilize Google Vertex AI AutoML for the initial development and validation of the whale trade classification model. The primary goal is to leverage the platform's automation to prove the ML hypothesis with minimal developer overhead and the lowest possible TCO.
+   2. Phase 2 (Optimization & Scale): After the model's value has been proven and the system is generating revenue, re-implement the training pipeline as a custom, fine-tuned solution on Lambda Labs. This transition will dramatically reduce long-term compute costs, provide granular control over the model architecture, and enable more advanced MLOps practices as the system scales.
+
+
+Section III: Strategic Considerations for the V2 Real-Time Architecture
+
+
+A core component of the V2 vision outlined in the initial report was a migration from a polling-based data ingestion model to a persistent, low-latency WebSocket architecture.1 This would provide a significant speed advantage in detecting and acting upon whale trades. However, new information regarding the Polymarket API necessitates a critical re-evaluation of this plan.
+
+
+3.1 Critical Finding: Re-evaluating the WebSocket Migration Path
+
+
+The initial V2 roadmap was predicated on the availability of a real-time data stream for trade and on-chain activity. While Polymarket did officially release its Real-Time Data Socket (RTDS) on September 24, 2025, a meticulous review of the official documentation reveals a critical limitation.34
+The RTDS documentation explicitly states that while the WebSocket connection technically supports various data streams, it only offers full support for the "Crypto Prices" and "Comments" topics at this time.35 The documentation includes a direct warning that attempting to subscribe to other topics—which would necessarily include the "activity" or "trades" streams required by the alert system—is not fully supported and may result in unexpected or unreliable behavior.35
+This finding represents a significant technical blocker for the immediate implementation of the V2 real-time architecture as originally envisioned. Building a core system feature on an officially unsupported API endpoint would introduce an unacceptable level of operational risk, including silent data loss and unpredictable failures. The planned migration from the robust, polling-based mechanism to a WebSocket client is therefore not currently viable.
+Recommendation: The plan to migrate to a WebSocket architecture must be put on hold. Development should prioritize the validated architectural improvements: migrating the data backend to Supabase and validating the initial ML model with Vertex AI. The system should continue to operate using the optimized, resilient polling mechanism designed in the fortified MVP plan, which remains the only reliable method for ingesting trade data. This strategic pause de-risks the project by preventing the allocation of resources to an unreliable system based on an unsupported API feature.
+
+
+3.2 Architecting and Costing a Future-Ready WebSocket Client
+
+
+While the WebSocket migration is currently blocked, it remains a valuable long-term goal. When Polymarket eventually extends full support for trade data via the RTDS, the system should be prepared to adopt it. This requires a forward-looking architectural plan and a realistic cost estimate.
+The client would be a lightweight, containerized application responsible for maintaining a single, persistent WebSocket connection to the Polymarket RTDS. Google Cloud Run is a suitable platform for this task, as it supports WebSockets.36 However, a standard Cloud Run service scales to zero, meaning the container would shut down when not processing requests, breaking the connection. To maintain a 24/7 connection, the service must be configured with a minimum of one instance (min-instances=1).37
+This configuration has specific pricing implications. A Cloud Run instance with an open WebSocket connection is considered "active" and is billed for its entire duration.39 For services configured with minimum instances under the request-based billing model, Google applies a specific, lower "Idle time" pricing rate for CPU and memory when the instance is warm but not actively processing a request.40
+While the Cloud Run free tier is generous, it primarily applies to active request processing time.40 It is unlikely to cover the full cost of an instance that is billed for being idle 24/7. Real-world user reports confirm that running a continuous minimum instance will incur a small but non-zero monthly cost, with one user reporting a bill of approximately $60/month for a 1 vCPU, 1 GB RAM instance.41
+The following table provides a bottom-up cost estimate for a minimal Cloud Run instance dedicated to maintaining the WebSocket connection, based on the official "Idle time" pricing.
+Table 3: Estimated Monthly Cost for a Persistent Cloud Run WebSocket Client
+
+
+Resource
+	Allocation
+	Rate (us-central1, Idle)
+	Seconds/Month
+	Monthly Cost (Pre-Free Tier)
+	CPU
+	1 vCPU
+	$0.0000025 / vCPU-sec 40
+	2,592,000
+	$6.48
+	Memory
+	512 MB (0.5 GiB)
+	$0.0000025 / GiB-sec 40
+	2,592,000
+	$3.24
+	Total Estimated Cost
+	-
+	-
+	-
+	~$9.72 / month
+	This forecast provides a realistic budget for this future component, allowing for informed long-term financial planning.
+
+
+Conclusion and Consolidated Roadmap
+
+
+This deep-dive analysis has evaluated critical architectural decisions for the post-MVP evolution of the Polymarket Whale Alert System. The findings culminate in a clear, prioritized strategic roadmap designed to maximize the system's analytical power, ensure long-term financial viability, and mitigate technical risk.
+The following consolidated action plan is recommended:
+   1. Immediate Priority (Data Backend Migration): The most critical and beneficial architectural change is to migrate the system's data layer from GCP Firestore to Supabase. This move is justified by Supabase's superior architectural alignment with the system's relational data model, its predictable and more cost-effective pricing for analytical workloads, and the strategic advantage of its open-source nature, which prevents vendor lock-in.
+   2. Next Priority (Machine Learning Validation): To evolve the system's signal intelligence, the initial foray into machine learning should leverage Google Vertex AI AutoML. This approach prioritizes developer velocity and minimizes the time-to-value, providing the fastest and most cost-effective path (in terms of TCO) to validate whether an ML model can outperform the existing heuristics.
+   3. Future Optimization (Machine Learning at Scale): Once the value of the ML model is proven and the system is generating revenue, a second phase of ML development should be planned. This involves migrating the training pipeline to a more cost-effective IaaS platform like Lambda Labs. This will significantly reduce long-term compute costs and provide the granular control necessary for advanced model optimization.
+   4. Strategic Hold (Real-Time Ingestion): The planned migration to a WebSocket-based data ingestion architecture must be postponed. This decision is driven by the critical finding that the Polymarket Real-Time Data Socket (RTDS) does not yet offer full, reliable support for the trade and activity data streams essential to the system's function. The project should continue to rely on the robust and optimized polling strategy in the interim. The provided cost analysis for a future Cloud Run-based client can be used for budgeting when the RTDS is updated.
+By adopting this phased and data-driven strategy, the developer can confidently build a Version 2.0 system that is not only more powerful and intelligent but also more scalable, resilient, and economically sustainable.
+Works cited
+   1. (Part 3) Polymarket Whale Alert System Analysis.txt
+   2. Supabase vs. Firebase: Which BaaS is Best for Your App? - Netguru, accessed October 20, 2025, https://www.netguru.com/blog/supabase-vs-firebase
+   3. Supabase vs Firebase: Which is Better? A Detailed Comparison - CloseFuture, accessed October 20, 2025, https://www.closefuture.io/blogs/supabase-vs-firebase
+   4. Supabase vs Firebase, accessed October 20, 2025, https://supabase.com/alternatives/supabase-vs-firebase
+   5. Firebase vs Supabase: Choosing the Right Backend for Your Web App | UI Bakery Blog, accessed October 20, 2025, https://uibakery.io/blog/firebase-vs-supabase
+   6. Firebase vs Supabase in 2025: Which one actually scales with you? - DEV Community, accessed October 20, 2025, https://dev.to/dev_tips/firebase-vs-supabase-in-2025-which-one-actually-scales-with-you-2374
+   7. Firebase vs. Supabase: Key Differences & Choosing Guide - InvoZone, accessed October 20, 2025, https://invozone.com/blog/firebase-vs-supabase-key-differences-choosing-guide/
+   8. Supabase vs Firebase: Which BaaS Pricing Model Actually Saves You Money? - Monetizely, accessed October 20, 2025, https://www.getmonetizely.com/articles/supabase-vs-firebase-which-baas-pricing-model-actually-saves-you-money
+   9. Pricing & fees | Supabase, accessed October 20, 2025, https://zone-www-dot-ezxme6cd6-supabase.vercel.app/pricing
+   10. The Complete Guide to Supabase Pricing Models and Cost Optimization - Flexprice, accessed October 20, 2025, https://flexprice.io/blog/supabase-pricing-breakdown
+   11. Integrate the Supabase API with the Google Cloud API - Pipedream, accessed October 20, 2025, https://pipedream.com/apps/supabase/integrations/google-cloud
+   12. Connect to your database | Supabase Docs, accessed October 20, 2025, https://supabase.com/docs/guides/database/connecting-to-postgres
+   13. Pricing & Fees | Supabase, accessed October 20, 2025, https://supabase.com/pricing
+   14. How to Prevent Your Supabase Project Database from Being Paused Using GitHub Actions, accessed October 20, 2025, https://dev.to/jps27cse/how-to-prevent-your-supabase-project-database-from-being-paused-using-github-actions-3hel
+   15. Preventing Supabase Pausing - George McCarron, accessed October 20, 2025, https://www.georgemccarron.com/blog/preventing-supabase-pausing
+   16. Prevent Supabase project from pausing with GitHub Actions | Natt Nguyen, accessed October 20, 2025, https://natt.sh/blog/2024-03-17-supabase-activity-scheduler
+   17. Honest comparison between Firebase and Supabase - Reddit, accessed October 20, 2025, https://www.reddit.com/r/Firebase/comments/1ffqzg6/honest_comparison_between_firebase_and_supabase/
+   18. Supabase or firebase? Which do you prefer? : r/FlutterDev - Reddit, accessed October 20, 2025, https://www.reddit.com/r/FlutterDev/comments/1lsdgyn/supabase_or_firebase_which_do_you_prefer/
+   19. AutoML beginner's guide | Vertex AI - Google Cloud Documentation, accessed October 20, 2025, https://docs.cloud.google.com/vertex-ai/docs/beginner/beginners-guide
+   20. Managing Machine Learning Datasets with Vertex AI: A Complete Guide - Medium, accessed October 20, 2025, https://medium.com/@devashish_m/managing-machine-learning-datasets-with-vertex-ai-a-complete-guide-4e0bfef4d6c6
+   21. Introduction to tabular data | Vertex AI - Google Cloud, accessed October 20, 2025, https://cloud.google.com/vertex-ai/docs/tabular-data/tabular101
+   22. Top 15 AI/ML Cloud Platforms in 2025 | Saturn Cloud Blog, accessed October 20, 2025, https://saturncloud.io/blog/top-15-ai-ml-cloud-platforms-in-2025/
+   23. AI Cloud Pricing | Lambda, accessed October 20, 2025, https://lambda.ai/pricing
+   24. On-Demand GPU Cloud | Lambda, The Superintelligence Cloud, accessed October 20, 2025, https://lambda.ai/service/gpu-cloud
+   25. Lambda Labs GPU Pricing & Specs | ComputePrices.com, accessed October 20, 2025, https://computeprices.com/providers/lambda
+   26. Lambda Labs | Review, Pricing & Alternatives - GetDeploying, accessed October 20, 2025, https://getdeploying.com/lambda-labs
+   27. Compare Lambda vs. Vertex AI Notebooks in 2025 - Slashdot, accessed October 20, 2025, https://slashdot.org/software/comparison/Lambda-vs-Vertex-AI-Notebooks/
+   28. Top Lambda Alternatives in 2025 - Slashdot, accessed October 20, 2025, https://slashdot.org/software/p/Lambda/alternatives
+   29. Vertex AI AutoML: Tutorial to create classification models | by Arpana Mehta | Google Cloud, accessed October 20, 2025, https://medium.com/google-cloud/unlock-the-power-of-your-data-google-clouds-vertex-ai-automl-172ac3b4b032
+   30. Vertex AI Pricing Review + Features and an Alternative | 2025 - Lindy, accessed October 20, 2025, https://www.lindy.ai/blog/vertex-ai-pricing
+   31. Vertex AI pricing | Google Cloud, accessed October 20, 2025, https://cloud.google.com/vertex-ai/pricing
+   32. Pricing for Tabular Workflows | Vertex AI - Google Cloud, accessed October 20, 2025, https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/pricing
+   33. Vertex AI Tabular Data: Qwik Start | Google Cloud Skills Boost, accessed October 20, 2025, https://www.cloudskillsboost.google/focuses/43565?parent=catalog
+   34. Polymarket Changelog, accessed October 20, 2025, https://docs.polymarket.com/changelog/changelog
+   35. Real Time Data Socket - Polymarket Documentation, accessed October 20, 2025, https://docs.polymarket.com/developers/RTDS/RTDS-overview
+   36. Building a WebSocket Chat service for Cloud Run tutorial, accessed October 20, 2025, https://cloud.google.com/run/docs/tutorials/websockets
+   37. Set minimum instances for services | Cloud Run, accessed October 20, 2025, https://cloud.google.com/run/docs/configuring/min-instances
+   38. How to build cost-effective serverless solutions with Google Cloud Run? - OChK, accessed October 20, 2025, https://ochk.cloud/blog/cost-effective-serverless-google-cloud-run
+   39. If my cloudrun service is connected to a websocket, do I pay for 24/7 billing? - Reddit, accessed October 20, 2025, https://www.reddit.com/r/googlecloud/comments/13x5j0o/if_my_cloudrun_service_is_connected_to_a/
+   40. Cloud Run pricing | Google Cloud, accessed October 20, 2025, https://cloud.google.com/run/pricing
+   41. Google Cloud Run Cost : r/googlecloud - Reddit, accessed October 20, 2025, https://www.reddit.com/r/googlecloud/comments/1brhv5h/google_cloud_run_cost/
+   42. Pricing of cloud run Revision auto-scaling minimum instances : r/googlecloud - Reddit, accessed October 20, 2025, https://www.reddit.com/r/googlecloud/comments/1chbkr6/pricing_of_cloud_run_revision_autoscaling_minimum/
+   43. Why are my idle Cloud Run services costing any money at all? : r/googlecloud - Reddit, accessed October 20, 2025, https://www.reddit.com/r/googlecloud/comments/1ef18ti/why_are_my_idle_cloud_run_services_costing_any/
