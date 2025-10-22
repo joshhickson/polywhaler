@@ -82,7 +82,7 @@ This project follows a disciplined, phased approach to development, validation, 
 
 ### Phase 4: Final Go/No-Go Decision & MVP Deployment
 
-- **Review Backtesting Results**: Make a formal go/no-go decision based on the empirical evidence from the backtest.
+- **Review Backtesting Results**: Make a formal go/no-go decision based on the empirical evidence from the backtest. This step serves as a **critical process checkpoint** to prevent contextual drift by formally comparing the quantitative results of the implemented strategy against the project's original hypothesis.
 - **Deploy MVP**: If the decision is "go," use the pre-configured secure CI/CD pipeline to deploy the Cloud Function and activate the Cloud Scheduler job.
 
 ## Post-MVP Evolution: Machine Learning Integration
